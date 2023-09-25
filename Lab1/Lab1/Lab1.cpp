@@ -15,13 +15,32 @@ float X = 0.0f;
 float Y = 0.0f;
 float width = 50.0f;
 float height = 60.0f;
+float pictureWidth = 50.0f;
+float pictureHeight = 50.0f;
 // Скорость картинки
 float SPEED = 0.5f;
+float WHEELPRESSSPEED = 15;
 
 void checkMovementKeysPress();
+void checkMouseKeyPress(POINT& mouseCoords, HWND& winHandle, float& distance);
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	// Словили ли сообщшение о прокрутке колесика и нажатие шифта
+	if (uMsg == WM_MOUSEWHEEL && GET_KEYSTATE_WPARAM(wParam) == MK_SHIFT)
+	{
+		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
+			X += WHEELPRESSSPEED;
+		else
+			X -= WHEELPRESSSPEED;
+	}
+	else if (uMsg == WM_MOUSEWHEEL && GET_KEYSTATE_WPARAM(wParam) != MK_SHIFT)
+	{
+		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
+			Y += WHEELPRESSSPEED;
+		else
+			Y -= WHEELPRESSSPEED;
+	}
 	// Отправляется при уничтожении окна.
 	if (uMsg == WM_DESTROY)
 	{
@@ -79,6 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 	// Создание прямоугольника и инициализация указателя
 	gfx = new Sprite(winHandle, currentWindow);
 	if (!gfx) return -1;
+	mousePositionPoints = gfx->getMousePositionStruct(width);
 
 	ShowWindow(winHandle, nCmdShow);
 	// Пока мы не вышли из приложения
@@ -90,6 +110,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 		{
 			DispatchMessage(&message);
 		}
+		// Проверка нажатия на кнопку мыши
+		checkMouseKeyPress(mouseCoords, winHandle, distance);
 
 		// Проверки на нажатие стрелочек и изменеине координат картинки
 		checkMovementKeysPress();
@@ -111,4 +133,28 @@ void checkMovementKeysPress() {
 		X -= SPEED;
 	if (GetAsyncKeyState(VK_RIGHT))
 		X += SPEED;
+}
+
+void checkMouseKeyPress(POINT& mouseCoords, HWND& winHandle, float& distance) {
+	if (GetAsyncKeyState(VK_LBUTTON))
+	{
+		// Получаем координаты курсора
+		GetCursorPos(&mouseCoords);
+		// преобразует координаты точки в системе координат экрана (начало координат левый верхний угол экрана) 
+		// в систему координат клиентской области компонента (начало координат левый верхний угол клиентской области).
+		ScreenToClient(winHandle, &mouseCoords);
+		// Отнимаем половину ширины/ длины картинки, чтобы ее центр двигался к курсору, а не левый край
+		mouseCoords.x += mousePositionPoints->mouseX; mouseCoords.y += mousePositionPoints->mouseY;
+		// Считаем Евклидово расстояние до курсора мыши
+		distance = sqrt((mouseCoords.x - X) * (mouseCoords.x - X) + (mouseCoords.y - Y) * (mouseCoords.y - Y));
+		// добавляем неЕвклидово расстояние к координатам и делим на реальное расстояние для равномерности движ-я
+		X += SPEED * (mouseCoords.x - X) / distance;
+		Y += SPEED * (mouseCoords.y - Y) / distance;
+		// Доводим до центра, если осталось совсем мало расстояния
+		if (distance < 0.5f)
+		{
+			X = mouseCoords.x;
+			Y = mouseCoords.y;
+		}
+	}
 }
