@@ -20,13 +20,22 @@ float pictureHeight = 50.0f;
 // Скорость картинки
 float SPEED = 0.5f;
 float WHEELPRESSSPEED = 15;
+const int SLEEP_TIME = 100;
+const int BOUNCE_DISTANCE = 25;
+const float BOUNCE_MOVEMENT_STEP = 0.25;
+bool bounceTop = false;
+bool bounceBottom = false;
+bool bounceRight = false;
+bool bounceLeft = false;
 
 void checkMovementKeysPress();
 void checkMouseKeyPress(POINT& mouseCoords, HWND& winHandle, float& distance);
+void checkIfBouncedNow();
+void checkCurrentWindowCollisions(HWND& winHandle);
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	// Словили ли сообщшение о прокрутке колесика и нажатие шифта
+	// Словили ли сообщение о прокрутке колесика и нажатие шифта
 	if (uMsg == WM_MOUSEWHEEL && GET_KEYSTATE_WPARAM(wParam) == MK_SHIFT)
 	{
 		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
@@ -50,7 +59,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	// Сообщение WM_PAINT отправляется, когда система или другое приложение отправляет запрос на закрашивание части окна приложения. Сообщение отправляется при вызове функции UpdateWindow или RedrawWindow или функцией DispatchMessage
 	if (uMsg == WM_PAINT)
 	{
-		gfx->drawRect(hwnd, X, Y, X+width, Y+height);
+		// gfx->drawRect(hwnd, X, Y, X+width, Y+height);
+		gfx->drawSprite(hwnd, X, Y);
 	}
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -116,6 +126,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 		// Проверки на нажатие стрелочек и изменеине координат картинки
 		checkMovementKeysPress();
 
+		// Проверка, сталкивалась картинка с краем, чтобы отбросить ее с задержкой
+		checkIfBouncedNow();
+
+		// Проверки на столкновение с краями экрана
+		checkCurrentWindowCollisions(winHandle);
+
 		// Перерисовка окна(происходит не сразу наверное)
 		InvalidateRect(winHandle, NULL, FALSE);
 	}
@@ -156,5 +172,66 @@ void checkMouseKeyPress(POINT& mouseCoords, HWND& winHandle, float& distance) {
 			X = mouseCoords.x;
 			Y = mouseCoords.y;
 		}
+	}
+}
+
+void checkIfBouncedNow() {
+	if (bounceTop) {
+		Y += BOUNCE_MOVEMENT_STEP;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+	}
+
+	if (Y > currentWindow.top + BOUNCE_DISTANCE) {
+		bounceTop = false;
+	}
+
+	if (bounceRight) {
+		X -= BOUNCE_MOVEMENT_STEP;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+	}
+
+	if (X + pictureWidth < currentWindow.right - BOUNCE_DISTANCE) {
+		bounceRight = false;
+	}
+
+	if (bounceBottom) {
+		Y -= BOUNCE_MOVEMENT_STEP;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+	}
+
+	if (Y + pictureHeight < currentWindow.bottom - BOUNCE_DISTANCE) {
+		bounceBottom = false;
+	}
+
+	if (bounceLeft) {
+		X += BOUNCE_MOVEMENT_STEP;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+	}
+
+	if (X > currentWindow.left + BOUNCE_DISTANCE) {
+		bounceLeft = false;
+	}
+}
+
+void checkCurrentWindowCollisions(HWND& winHandle) {
+	if (Y <= currentWindow.top) {
+		bounceTop = true;
+		Y = currentWindow.top;
+		InvalidateRect(winHandle, NULL, FALSE);
+	}
+	if (X + pictureWidth >= currentWindow.right) {
+		bounceRight = true;
+		X = currentWindow.right - pictureWidth;
+		InvalidateRect(winHandle, NULL, FALSE);
+	}
+	if (Y + pictureHeight >= currentWindow.bottom) {
+		bounceBottom = true;
+		Y = currentWindow.bottom - pictureHeight;
+		InvalidateRect(winHandle, NULL, FALSE);
+	}
+	if (X <= currentWindow.left) {
+		bounceLeft = true;
+		X = currentWindow.left;
+		InvalidateRect(winHandle, NULL, FALSE);
 	}
 }

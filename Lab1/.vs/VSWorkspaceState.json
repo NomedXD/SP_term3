@@ -1,9 +1,11 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Debug",
     "\\Lab1",
-    "\\Lab1\\images"
+    "\\Lab1\\x64\\Debug",
+    "\\x64"
   ],
-  "SelectedNode": "\\Lab1\\Lab1.cpp",
+  "SelectedNode": "\\Debug\\Lab1.pdb",
   "PreviewInSolutionExplorer": false
 }

@@ -34,5 +34,6 @@ class Sprite
 public:
 	Sprite(HWND hwnd, RECT workSpace);
 	void drawRect(HWND hWnd, float X1, float Y1, float X2, float Y2);
+	void drawSprite(HWND hWnd, float X, float Y);
 	mousePositionStruct* getMousePositionStruct(float width);
 };
