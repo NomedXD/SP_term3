@@ -1,0 +1,10 @@
+﻿  Lab1.cpp
+D:\3 курс, 1 сем\СП\Lab1\Lab1\Lab1.cpp(75,8): warning C4101: mouseCoords: неиспользованная локальная переменная
+D:\3 курс, 1 сем\СП\Lab1\Lab1\Lab1.cpp(192,20): warning C4244: =: преобразование "LONG" в "float", возможна потеря данных
+D:\3 курс, 1 сем\СП\Lab1\Lab1\Lab1.cpp(207,20): warning C4244: =: преобразование "LONG" в "float", возможна потеря данных
+  Sprite.cpp
+  Создание кода
+  Previous IPDB not found, fall back to full compilation.
+  All 50 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Создание кода завершено
+  Lab1.vcxproj -> D:\3 курс, 1 сем\СП\Lab1\x64\Release\Lab1.exe

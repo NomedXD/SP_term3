@@ -1,15 +1,9 @@
 #pragma once
 #include <Windows.h>
 
-struct mousePositionStruct
+struct CenterCorrection
 {
-	float 
-		top, 
-		bottom, 
-		left, 
-		right, 
-		mouseX, 
-		mouseY;
+	float x, y;
 };
 
 class Sprite
@@ -24,7 +18,7 @@ class Sprite
 	RECT currentWindow;
 	// Информация, котоаря, может быть использовала для окрашивания рабочей области окна принадлежащей этому приложению
 	PAINTSTRUCT PStruct;
-	mousePositionStruct points;
+	CenterCorrection centerCorrectionPoints;
 	// Определяет тип, ширину, высоту, формат цвета и битовые значения растрового изображения
 	BITMAP bm;
 
@@ -35,5 +29,5 @@ public:
 	Sprite(HWND hwnd, RECT workSpace);
 	void drawRect(HWND hWnd, float X1, float Y1, float X2, float Y2);
 	void drawSprite(HWND hWnd, float X, float Y);
-	mousePositionStruct* getMousePositionStruct(float width);
+	CenterCorrection* initializeCenterCorrectionPoints(float width, float height);
 };

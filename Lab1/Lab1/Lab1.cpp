@@ -5,31 +5,31 @@
 #include <thread>
 
 // Указатель на нашу картинку
-Sprite* gfx;
-// Доп точки для мышки
-mousePositionStruct* mousePositionPoints;
+Sprite* picutrePointer;
+CenterCorrection* centerPoints;
 // Размер нашего экрана
 RECT currentWindow = { 0, 0, 700, 450 };
 // Координаты и размеры картинки(прямоугольинка)
-float X = 0.0f;
-float Y = 0.0f;
+float coordX = 0.0f;
+float coordY = 0.0f;
 float width = 50.0f;
 float height = 60.0f;
 float pictureWidth = 50.0f;
 float pictureHeight = 50.0f;
 // Скорость картинки
-float SPEED = 0.5f;
-float WHEELPRESSSPEED = 15;
-const int SLEEP_TIME = 100;
-const int BOUNCE_DISTANCE = 25;
-const float BOUNCE_MOVEMENT_STEP = 0.25;
+float pictureSpeed = 0.5f;
+float wheelPictureSpeed = 15;
+// Для столкновения с краями экрана
+const int speepingCollisionTime = 100;
+const int borderCollisionBounce = 25;
+const float borderCollisionBounceStep = 0.25;
 bool bounceTop = false;
 bool bounceBottom = false;
 bool bounceRight = false;
 bool bounceLeft = false;
 
+void checkMouseMovementKeyPress(HWND& winHandle);
 void checkMovementKeysPress();
-void checkMouseKeyPress(POINT& mouseCoords, HWND& winHandle, float& distance);
 void checkIfBouncedNow();
 void checkCurrentWindowCollisions(HWND& winHandle);
 
@@ -39,16 +39,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (uMsg == WM_MOUSEWHEEL && GET_KEYSTATE_WPARAM(wParam) == MK_SHIFT)
 	{
 		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
-			X += WHEELPRESSSPEED;
+			coordX += wheelPictureSpeed;
 		else
-			X -= WHEELPRESSSPEED;
+			coordX -= wheelPictureSpeed;
 	}
 	else if (uMsg == WM_MOUSEWHEEL && GET_KEYSTATE_WPARAM(wParam) != MK_SHIFT)
 	{
 		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
-			Y += WHEELPRESSSPEED;
+			coordY += wheelPictureSpeed;
 		else
-			Y -= WHEELPRESSSPEED;
+			coordY -= wheelPictureSpeed;
 	}
 	// Отправляется при уничтожении окна.
 	if (uMsg == WM_DESTROY)
@@ -59,8 +59,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	// Сообщение WM_PAINT отправляется, когда система или другое приложение отправляет запрос на закрашивание части окна приложения. Сообщение отправляется при вызове функции UpdateWindow или RedrawWindow или функцией DispatchMessage
 	if (uMsg == WM_PAINT)
 	{
-		// gfx->drawRect(hwnd, X, Y, X+width, Y+height);
-		gfx->drawSprite(hwnd, X, Y);
+		// picutrePointer->drawRect(hwnd, X, Y, X+width, Y+height);
+		picutrePointer->drawSprite(hwnd, coordX, coordY);
 	}
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -72,9 +72,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 	WNDCLASSEX windowClass;
 	// Содержит информацию сообщения из очереди
 	MSG message;
-	// Точка-координаты курсора
-	POINT mouseCoords;
-	float distance = 0.0f;
+
 
 	// Заполняет блок памяти нулями
 	ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
@@ -101,15 +99,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 	if (!winHandle) return -1;
 
 	// Начальное положение прямоугольника
-	X = (currentWindow.right - currentWindow.left) / 2.f;
-	Y = (currentWindow.bottom - currentWindow.top) / 2.f;
+	coordX = (currentWindow.right - currentWindow.left) / 2.f;
+	coordY = (currentWindow.bottom - currentWindow.top) / 2.f;
 
 	message.message = WM_NULL;
 	// Создание прямоугольника и инициализация указателя
-	gfx = new Sprite(winHandle, currentWindow);
-	if (!gfx) return -1;
-	mousePositionPoints = gfx->getMousePositionStruct(width);
-
+	picutrePointer = new Sprite(winHandle, currentWindow);
+	if (!picutrePointer) return -1;
+	// Инициализация точек корректировки центра картинки(для передвижения по мышке)
+	centerPoints = picutrePointer->initializeCenterCorrectionPoints(width, height);
 	ShowWindow(winHandle, nCmdShow);
 	// Пока мы не вышли из приложения
 	while (message.message != WM_QUIT)
@@ -120,8 +118,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 		{
 			DispatchMessage(&message);
 		}
-		// Проверка нажатия на кнопку мыши
-		checkMouseKeyPress(mouseCoords, winHandle, distance);
+		checkMouseMovementKeyPress(winHandle);
 
 		// Проверки на нажатие стрелочек и изменеине координат картинки
 		checkMovementKeysPress();
@@ -135,103 +132,103 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR cmdLine, i
 		// Перерисовка окна(происходит не сразу наверное)
 		InvalidateRect(winHandle, NULL, FALSE);
 	}
-	delete gfx;
+	delete picutrePointer;
 
 	return 0;
 }
 
-void checkMovementKeysPress() {
-	if (GetAsyncKeyState(VK_UP))
-		Y -= SPEED;
-	if (GetAsyncKeyState(VK_DOWN))
-		Y += SPEED;
-	if (GetAsyncKeyState(VK_LEFT))
-		X -= SPEED;
-	if (GetAsyncKeyState(VK_RIGHT))
-		X += SPEED;
-}
-
-void checkMouseKeyPress(POINT& mouseCoords, HWND& winHandle, float& distance) {
+void checkMouseMovementKeyPress(HWND& winHandle) {
 	if (GetAsyncKeyState(VK_LBUTTON))
 	{
-		// Получаем координаты курсора
+		// Точка-координаты курсора
+		POINT mouseCoords;
+		// Получение координат курсора
 		GetCursorPos(&mouseCoords);
-		// преобразует координаты точки в системе координат экрана (начало координат левый верхний угол экрана) 
-		// в систему координат клиентской области компонента (начало координат левый верхний угол клиентской области).
+		// Перевод координат мышки из экранных в клиентские
 		ScreenToClient(winHandle, &mouseCoords);
-		// Отнимаем половину ширины/ длины картинки, чтобы ее центр двигался к курсору, а не левый край
-		mouseCoords.x += mousePositionPoints->mouseX; mouseCoords.y += mousePositionPoints->mouseY;
-		// Считаем Евклидово расстояние до курсора мыши
-		distance = sqrt((mouseCoords.x - X) * (mouseCoords.x - X) + (mouseCoords.y - Y) * (mouseCoords.y - Y));
-		// добавляем неЕвклидово расстояние к координатам и делим на реальное расстояние для равномерности движ-я
-		X += SPEED * (mouseCoords.x - X) / distance;
-		Y += SPEED * (mouseCoords.y - Y) / distance;
-		// Доводим до центра, если осталось совсем мало расстояния
-		if (distance < 0.5f)
+		// Корректировка координат мышки(чтобы спрайт двигался точно к центру)
+		mouseCoords.x += centerPoints->x; mouseCoords.y += centerPoints->y;
+		// Расстояние евклида от мышки до центра картинки, чтобы она двигалась плавно, а не моментально
+		float euclidDistance = sqrt((mouseCoords.x - coordX) * (mouseCoords.x - coordX) + (mouseCoords.y - coordY) * (mouseCoords.y - coordY));
+		// Передвижение каждой координаты по-отдельности
+		coordX += pictureSpeed * (mouseCoords.x - coordX) / euclidDistance;
+		coordY += pictureSpeed * (mouseCoords.y - coordY) / euclidDistance;
+		if (euclidDistance < 0.5f)
 		{
-			X = mouseCoords.x;
-			Y = mouseCoords.y;
+			coordX = mouseCoords.x;
+			coordY = mouseCoords.y;
 		}
 	}
 }
 
+void checkMovementKeysPress() {
+	if (GetAsyncKeyState(VK_UP))
+		coordY -= pictureSpeed;
+	if (GetAsyncKeyState(VK_DOWN))
+		coordY += pictureSpeed;
+	if (GetAsyncKeyState(VK_LEFT))
+		coordX -= pictureSpeed;
+	if (GetAsyncKeyState(VK_RIGHT))
+		coordX += pictureSpeed;
+}
+
 void checkIfBouncedNow() {
 	if (bounceTop) {
-		Y += BOUNCE_MOVEMENT_STEP;
-		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+		coordY += borderCollisionBounceStep;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(speepingCollisionTime));
 	}
 
-	if (Y > currentWindow.top + BOUNCE_DISTANCE) {
+	if (coordY > currentWindow.top + borderCollisionBounce) {
 		bounceTop = false;
 	}
 
 	if (bounceRight) {
-		X -= BOUNCE_MOVEMENT_STEP;
-		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+		coordX -= borderCollisionBounceStep;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(speepingCollisionTime));
 	}
 
-	if (X + pictureWidth < currentWindow.right - BOUNCE_DISTANCE) {
+	if (coordX + pictureWidth < currentWindow.right - borderCollisionBounce) {
 		bounceRight = false;
 	}
 
 	if (bounceBottom) {
-		Y -= BOUNCE_MOVEMENT_STEP;
-		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+		coordY -= borderCollisionBounceStep;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(speepingCollisionTime));
 	}
 
-	if (Y + pictureHeight < currentWindow.bottom - BOUNCE_DISTANCE) {
+	if (coordY + pictureHeight < currentWindow.bottom - borderCollisionBounce) {
 		bounceBottom = false;
 	}
 
 	if (bounceLeft) {
-		X += BOUNCE_MOVEMENT_STEP;
-		std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME));
+		coordX += borderCollisionBounceStep;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(speepingCollisionTime));
 	}
 
-	if (X > currentWindow.left + BOUNCE_DISTANCE) {
+	if (coordX > currentWindow.left + borderCollisionBounce) {
 		bounceLeft = false;
 	}
 }
 
 void checkCurrentWindowCollisions(HWND& winHandle) {
-	if (Y <= currentWindow.top) {
+	if (coordY <= currentWindow.top) {
 		bounceTop = true;
-		Y = currentWindow.top;
+		coordY = currentWindow.top;
 		InvalidateRect(winHandle, NULL, FALSE);
 	}
-	if (X + pictureWidth >= currentWindow.right) {
+	if (coordX + pictureWidth >= currentWindow.right) {
 		bounceRight = true;
-		X = currentWindow.right - pictureWidth;
+		coordX = currentWindow.right - pictureWidth;
 		InvalidateRect(winHandle, NULL, FALSE);
 	}
-	if (Y + pictureHeight >= currentWindow.bottom) {
+	if (coordY + pictureHeight >= currentWindow.bottom) {
 		bounceBottom = true;
-		Y = currentWindow.bottom - pictureHeight;
+		coordY = currentWindow.bottom - pictureHeight;
 		InvalidateRect(winHandle, NULL, FALSE);
 	}
-	if (X <= currentWindow.left) {
+	if (coordX <= currentWindow.left) {
 		bounceLeft = true;
-		X = currentWindow.left;
+		coordX = currentWindow.left;
 		InvalidateRect(winHandle, NULL, FALSE);
 	}
 }

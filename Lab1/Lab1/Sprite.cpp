@@ -36,19 +36,16 @@ void Sprite::drawSprite(HWND hWnd, float X, float Y)
 	BeginPaint(hWnd, &PStruct);
 	// Рисует указанный прямоугольник с помощью кисти, выбранной в данный момент в контексте указанного устройства
 	PatBlt(bufferDevice, 0, 0, currentWindow.right, currentWindow.bottom, WHITENESS);
+	// Перенос контекста совместимого устройства в его исходный контестк(с которым совместим)
 	BitBlt(bufferDevice, (int)X, (int)Y, bm.bmWidth, bm.bmHeight, spriteDevice, 0, 0, SRCCOPY);
 	BitBlt(device, 0, 0, currentWindow.right, currentWindow.bottom, bufferDevice, 0, 0, SRCCOPY);
 
 	EndPaint(hWnd, &PStruct);
 }
-// Вычисление доп. точек
-mousePositionStruct* Sprite::getMousePositionStruct(float width)
+
+CenterCorrection* Sprite::initializeCenterCorrectionPoints(float width, float height)
 {
-	points.bottom = width;
-	points.left = 0;
-	points.right = width;
-	points.top = 0;
-	points.mouseX = -width / 2;
-	points.mouseY = -width / 2;
-	return &points;
+	centerCorrectionPoints.x = -width / 2;
+	centerCorrectionPoints.y = -height / 2;
+	return &centerCorrectionPoints;
 }
