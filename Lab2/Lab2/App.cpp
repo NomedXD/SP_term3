@@ -50,6 +50,8 @@ App::App(std::string filePath) : App()
 {
     // Создание исходной таблицы(3 на 5)
     m_table.resize(3, 5);
+    // Заполнение текстом таблицы. Этот стрим сам удаляет пробелы
+    m_table.setText(std::string(std::istream_iterator<char>(std::ifstream(filePath)), {}));
 }
 
 int App::run()
@@ -163,7 +165,7 @@ LRESULT App::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             // Выбор объекта шрифта в контексте
             SelectObject(secHDC, hFont);
             // Вычисление размера ячеек
-            m_table.calcCellsSize(secHDC);
+            m_table.calcCellsSize(secHDC, m_fontSize);
             // Обновление содержимого ячеек
             FillRect(secHDC, &ps.rcPaint, (HBRUSH) (WHITE_BRUSH));
             m_table.draw(secHDC, m_offset);

@@ -10,6 +10,7 @@ private:
     int m_cols;
     RECT m_tableRect;
 
+    std::vector<std::vector<TRect>> m_matrixTexts;
     std::vector<std::vector<RECT>> m_cellsDimensions;
     std::string m_text;
 
@@ -23,7 +24,7 @@ public:
     inline void resize(RECT clientRect);
     inline void resize(int rows, int cols);
     void resize(int rows, int cols, RECT clientRect);
-    void calcCellsSize(HDC hdc);
+    void calcCellsSize(HDC hdc, int& fontSize);
     RECT getRect() { return m_tableRect; };
 
     void draw(HDC hdc, int offset);

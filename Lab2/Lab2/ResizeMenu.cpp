@@ -17,22 +17,10 @@ ResizeMenu::ResizeMenu(HWND parent, const std::string& className, const std::str
     {
         RECT rect;
         GetWindowRect(parent, &rect);
-
         this->m_parent = parent;
-
-        m_wndHandle = CreateWindowEx(
-        0,                              // Optional window styles.
-        className.c_str(),              // Window class
-        label.c_str(),                  // Window text
-        WS_DLGFRAME,   // Window style
-        // Size and position
-        rect.right / 2 - 160, rect.bottom / 2 - 90, 180, 280,
-        parent,                        // Parent window    
-        nullptr,                        // Menu
-        GetModuleHandle(nullptr),       // Instance handle
-        this                            // Additional application data
-        );
-
+        // Создание главного окна
+        m_wndHandle = CreateWindowEx(0, className.c_str(), label.c_str(),  WS_DLGFRAME, rect.right / 2 - 160, rect.bottom / 2 - 90, 300, 300,
+        parent, nullptr, GetModuleHandle(nullptr), this);
         if (!m_wndHandle)
             throw std::runtime_error{"Failed to create window!"};
 
@@ -103,13 +91,13 @@ LRESULT ResizeMenu::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     {  
         case WM_CREATE:
         {
-            m_close = addButton("Close", {40, 150, 80, 30}, (HMENU)CLOSE);
-            m_ok = addButton("Ok", {40, 190, 80, 30}, (HMENU)OK);
+            m_close = addButton("Закрыть", {40, 150, 80, 30}, (HMENU)CLOSE);
+            m_ok = addButton("Ok", {120, 150, 80, 30}, (HMENU)OK);
 
             m_editRow = addEdit("", {30, 40, 100, 30}, (HMENU)EDIT_ROW);
-            addLabel("Rows", {30, 10, 35, 20}, 0);
+            addLabel("Строки", {30, 10, 100, 20}, 0);
             m_editCol = addEdit("", {30, 110, 100, 30}, (HMENU)EDIT_COL);
-            addLabel("Columns", {30, 80, 57, 20}, 0);
+            addLabel("Колонки", {30, 80, 100, 20}, 0);
             return true;
         }
         case WM_COMMAND:
