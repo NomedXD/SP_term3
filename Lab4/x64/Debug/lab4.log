@@ -1,0 +1,15 @@
+﻿  lab4.cpp
+E:\SP_term3\Lab4\lab4.cpp(32,43): warning C4312: приведение типов: преобразование из "HFILE" в "HANDLE" большего размера
+E:\SP_term3\Lab4\lab4.cpp(34,53): warning C4312: приведение типов: преобразование из "HFILE" в "HANDLE" большего размера
+E:\SP_term3\Lab4\lab4.cpp(53,26): warning C4312: приведение типов: преобразование из "HFILE" в "HANDLE" большего размера
+E:\SP_term3\Lab4\lab4.cpp(136,55): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+E:\SP_term3\Lab4\lab4.cpp(139,56): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+E:\SP_term3\Lab4\lab4.cpp(115,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+E:\SP_term3\Lab4\lab4.cpp(112): message : во время компиляции функции-члена класс шаблон "void Sort<std::string>::sort(std::vector<std::string,std::allocator<std::string>> &)"
+E:\SP_term3\Lab4\lab4.cpp(195): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Sort<std::string>::sort(std::vector<std::string,std::allocator<std::string>> &)"
+E:\SP_term3\Lab4\lab4.cpp(195): message : выполняется компиляция ссылки на экземпляр класс шаблон функции "Sort<std::string>"
+E:\SP_term3\Lab4\lab4.cpp(85,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+E:\SP_term3\Lab4\lab4.cpp(84): message : во время компиляции функции-члена класс шаблон "void Sort<std::string>::MergeSort(std::vector<std::string,std::allocator<std::string>> &,std::vector<std::string,std::allocator<std::string>> &,std::vector<std::string,std::allocator<std::string>> &)"
+E:\SP_term3\Lab4\lab4.cpp(126): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Sort<std::string>::MergeSort(std::vector<std::string,std::allocator<std::string>> &,std::vector<std::string,std::allocator<std::string>> &,std::vector<std::string,std::allocator<std::string>> &)"
+E:\SP_term3\Lab4\lab4.cpp(86,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+  lab4.vcxproj -> E:\SP_term3\Lab4\x64\Debug\lab4.exe

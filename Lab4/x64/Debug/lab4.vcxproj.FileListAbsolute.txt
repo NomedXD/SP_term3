@@ -1,0 +1,4 @@
+Y:\Файлы\Универ\5 семестр\Лабы\ОСиСП\OSaSP-lab4\x64\Debug\lab4.exe
+C:\Users\pauliuchenka\Desktop\Ника\ОСиСП\OSaSP-lab4\x64\Debug\lab4.exe
+C:\Users\User\Desktop\OSaSP-lab4\x64\Debug\lab4.exe
+E:\SP_term3\Lab4\x64\Debug\lab4.exe

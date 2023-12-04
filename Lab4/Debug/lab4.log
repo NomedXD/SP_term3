@@ -1,0 +1,7 @@
+﻿  lab4.cpp
+E:\SP_term3\Lab4\lab4.cpp(49,36): warning C4018: <=: несоответствие типов со знаком и без знака
+E:\SP_term3\Lab4\lab4.cpp(69,19): warning C4018: >: несоответствие типов со знаком и без знака
+E:\SP_term3\Lab4\lab4.cpp(97,20): warning C4018: <: несоответствие типов со знаком и без знака
+E:\SP_term3\Lab4\lab4.cpp(124,21): warning C4018: >=: несоответствие типов со знаком и без знака
+E:\SP_term3\Lab4\lab4.cpp(140,51): warning C4018: >=: несоответствие типов со знаком и без знака
+  lab4.vcxproj -> E:\SP_term3\Lab4\Debug\lab4.exe
